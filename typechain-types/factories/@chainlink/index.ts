@@ -2,3 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as contractsCcip from "./contracts-ccip";
+export * as local from "./local";

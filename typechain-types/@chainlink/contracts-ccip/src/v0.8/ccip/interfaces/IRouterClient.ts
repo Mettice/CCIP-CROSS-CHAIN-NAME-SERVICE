@@ -20,14 +20,10 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-  PromiseOrValue,
 } from "../../../../../../common";
 
 export declare namespace Client {
-  export type EVMTokenAmountStruct = {
-    token: PromiseOrValue<string>;
-    amount: PromiseOrValue<BigNumberish>;
-  };
+  export type EVMTokenAmountStruct = { token: string; amount: BigNumberish };
 
   export type EVMTokenAmountStructOutput = [string, BigNumber] & {
     token: string;
@@ -35,11 +31,11 @@ export declare namespace Client {
   };
 
   export type EVM2AnyMessageStruct = {
-    receiver: PromiseOrValue<BytesLike>;
-    data: PromiseOrValue<BytesLike>;
+    receiver: BytesLike;
+    data: BytesLike;
     tokenAmounts: Client.EVMTokenAmountStruct[];
-    feeToken: PromiseOrValue<string>;
-    extraArgs: PromiseOrValue<BytesLike>;
+    feeToken: string;
+    extraArgs: BytesLike;
   };
 
   export type EVM2AnyMessageStructOutput = [
@@ -75,19 +71,19 @@ export interface IRouterClientInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "ccipSend",
-    values: [PromiseOrValue<BigNumberish>, Client.EVM2AnyMessageStruct]
+    values: [BigNumberish, Client.EVM2AnyMessageStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "getFee",
-    values: [PromiseOrValue<BigNumberish>, Client.EVM2AnyMessageStruct]
+    values: [BigNumberish, Client.EVM2AnyMessageStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "getSupportedTokens",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "isChainSupported",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
 
   decodeFunctionResult(functionFragment: "ccipSend", data: BytesLike): Result;
@@ -132,70 +128,70 @@ export interface IRouterClient extends BaseContract {
 
   functions: {
     ccipSend(
-      destinationChainSelector: PromiseOrValue<BigNumberish>,
+      destinationChainSelector: BigNumberish,
       message: Client.EVM2AnyMessageStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     getFee(
-      destinationChainSelector: PromiseOrValue<BigNumberish>,
+      destinationChainSelector: BigNumberish,
       message: Client.EVM2AnyMessageStruct,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { fee: BigNumber }>;
 
     getSupportedTokens(
-      chainSelector: PromiseOrValue<BigNumberish>,
+      chainSelector: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string[]] & { tokens: string[] }>;
 
     isChainSupported(
-      chainSelector: PromiseOrValue<BigNumberish>,
+      chainSelector: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[boolean] & { supported: boolean }>;
   };
 
   ccipSend(
-    destinationChainSelector: PromiseOrValue<BigNumberish>,
+    destinationChainSelector: BigNumberish,
     message: Client.EVM2AnyMessageStruct,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   getFee(
-    destinationChainSelector: PromiseOrValue<BigNumberish>,
+    destinationChainSelector: BigNumberish,
     message: Client.EVM2AnyMessageStruct,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   getSupportedTokens(
-    chainSelector: PromiseOrValue<BigNumberish>,
+    chainSelector: BigNumberish,
     overrides?: CallOverrides
   ): Promise<string[]>;
 
   isChainSupported(
-    chainSelector: PromiseOrValue<BigNumberish>,
+    chainSelector: BigNumberish,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
   callStatic: {
     ccipSend(
-      destinationChainSelector: PromiseOrValue<BigNumberish>,
+      destinationChainSelector: BigNumberish,
       message: Client.EVM2AnyMessageStruct,
       overrides?: CallOverrides
     ): Promise<string>;
 
     getFee(
-      destinationChainSelector: PromiseOrValue<BigNumberish>,
+      destinationChainSelector: BigNumberish,
       message: Client.EVM2AnyMessageStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getSupportedTokens(
-      chainSelector: PromiseOrValue<BigNumberish>,
+      chainSelector: BigNumberish,
       overrides?: CallOverrides
     ): Promise<string[]>;
 
     isChainSupported(
-      chainSelector: PromiseOrValue<BigNumberish>,
+      chainSelector: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -204,48 +200,48 @@ export interface IRouterClient extends BaseContract {
 
   estimateGas: {
     ccipSend(
-      destinationChainSelector: PromiseOrValue<BigNumberish>,
+      destinationChainSelector: BigNumberish,
       message: Client.EVM2AnyMessageStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     getFee(
-      destinationChainSelector: PromiseOrValue<BigNumberish>,
+      destinationChainSelector: BigNumberish,
       message: Client.EVM2AnyMessageStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getSupportedTokens(
-      chainSelector: PromiseOrValue<BigNumberish>,
+      chainSelector: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     isChainSupported(
-      chainSelector: PromiseOrValue<BigNumberish>,
+      chainSelector: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     ccipSend(
-      destinationChainSelector: PromiseOrValue<BigNumberish>,
+      destinationChainSelector: BigNumberish,
       message: Client.EVM2AnyMessageStruct,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     getFee(
-      destinationChainSelector: PromiseOrValue<BigNumberish>,
+      destinationChainSelector: BigNumberish,
       message: Client.EVM2AnyMessageStruct,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getSupportedTokens(
-      chainSelector: PromiseOrValue<BigNumberish>,
+      chainSelector: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     isChainSupported(
-      chainSelector: PromiseOrValue<BigNumberish>,
+      chainSelector: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

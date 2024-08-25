@@ -3,7 +3,6 @@
 /* eslint-disable */
 import { Signer, utils, Contract, ContractFactory, Overrides } from "ethers";
 import type { Provider, TransactionRequest } from "@ethersproject/providers";
-import type { PromiseOrValue } from "../../../../../../../common";
 import type {
   Client,
   ClientInterface,
@@ -26,7 +25,7 @@ const _abi = [
 ] as const;
 
 const _bytecode =
-  "0x60e5610052600b82828239805160001a607314610045577f4e487b7100000000000000000000000000000000000000000000000000000000600052600060045260246000fd5b30600052607381538281f3fe730000000000000000000000000000000000000000301460806040526004361060335760003560e01c80633ab8c0d0146038575b600080fd5b603e6052565b604051604991906096565b60405180910390f35b6397a657c960e01b81565b60007fffffffff0000000000000000000000000000000000000000000000000000000082169050919050565b609081605d565b82525050565b600060208201905060a960008301846089565b9291505056fea26469706673582212201a6571cb57e0948b0d0f46c0807446e4c088a84c2f06e945e6070a8368bcbb0e64736f6c63430008130033";
+  "0x6098610038600b82828239805160001a607314602b57634e487b7160e01b600052600060045260246000fd5b30600052607381538281f3fe730000000000000000000000000000000000000000301460806040526004361060335760003560e01c80633ab8c0d0146038575b600080fd5b60456397a657c960e01b81565b6040516001600160e01b0319909116815260200160405180910390f3fea2646970667358221220be0ed52c340dfdb08bfc9a24be601f331fcba041341acbf67a08d49476a4558a64736f6c63430008130033";
 
 type ClientConstructorParams =
   | [signer?: Signer]
@@ -45,13 +44,11 @@ export class Client__factory extends ContractFactory {
     }
   }
 
-  override deploy(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<Client> {
+  override deploy(overrides?: Overrides & { from?: string }): Promise<Client> {
     return super.deploy(overrides || {}) as Promise<Client>;
   }
   override getDeployTransaction(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: string }
   ): TransactionRequest {
     return super.getDeployTransaction(overrides || {});
   }

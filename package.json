@@ -6,7 +6,11 @@
     "@chainlink/env-enc": "^1.0.5",
     "@chainlink/local": "^0.2.1",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.8",
     "@openzeppelin/contracts": "^5.0.2",
+    "@typechain/ethers-v5": "^11.1.2",
+    "@typechain/hardhat": "^9.1.0",
     "ethers": "^5.7.2",
     "hardhat": "^2.22.9"
   }

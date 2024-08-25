@@ -20,14 +20,10 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-  PromiseOrValue,
 } from "../common";
 
 export declare namespace Client {
-  export type EVMTokenAmountStruct = {
-    token: PromiseOrValue<string>;
-    amount: PromiseOrValue<BigNumberish>;
-  };
+  export type EVMTokenAmountStruct = { token: string; amount: BigNumberish };
 
   export type EVMTokenAmountStructOutput = [string, BigNumber] & {
     token: string;
@@ -35,10 +31,10 @@ export declare namespace Client {
   };
 
   export type Any2EVMMessageStruct = {
-    messageId: PromiseOrValue<BytesLike>;
-    sourceChainSelector: PromiseOrValue<BigNumberish>;
-    sender: PromiseOrValue<BytesLike>;
-    data: PromiseOrValue<BytesLike>;
+    messageId: BytesLike;
+    sourceChainSelector: BigNumberish;
+    sender: BytesLike;
+    data: BytesLike;
     destTokenAmounts: Client.EVMTokenAmountStruct[];
   };
 
@@ -91,7 +87,7 @@ export interface CrossChainNameServiceReceiverInterface
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
-    values: [PromiseOrValue<BytesLike>]
+    values: [BytesLike]
   ): string;
 
   decodeFunctionResult(
@@ -142,7 +138,7 @@ export interface CrossChainNameServiceReceiver extends BaseContract {
   functions: {
     ccipReceive(
       message: Client.Any2EVMMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     getRouter(overrides?: CallOverrides): Promise<[string]>;
@@ -154,14 +150,14 @@ export interface CrossChainNameServiceReceiver extends BaseContract {
     i_sourceChainSelector(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
+      interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
   };
 
   ccipReceive(
     message: Client.Any2EVMMessageStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   getRouter(overrides?: CallOverrides): Promise<string>;
@@ -173,7 +169,7 @@ export interface CrossChainNameServiceReceiver extends BaseContract {
   i_sourceChainSelector(overrides?: CallOverrides): Promise<BigNumber>;
 
   supportsInterface(
-    interfaceId: PromiseOrValue<BytesLike>,
+    interfaceId: BytesLike,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -192,7 +188,7 @@ export interface CrossChainNameServiceReceiver extends BaseContract {
     i_sourceChainSelector(overrides?: CallOverrides): Promise<BigNumber>;
 
     supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
+      interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<boolean>;
   };
@@ -202,7 +198,7 @@ export interface CrossChainNameServiceReceiver extends BaseContract {
   estimateGas: {
     ccipReceive(
       message: Client.Any2EVMMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     getRouter(overrides?: CallOverrides): Promise<BigNumber>;
@@ -214,7 +210,7 @@ export interface CrossChainNameServiceReceiver extends BaseContract {
     i_sourceChainSelector(overrides?: CallOverrides): Promise<BigNumber>;
 
     supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
+      interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
@@ -222,7 +218,7 @@ export interface CrossChainNameServiceReceiver extends BaseContract {
   populateTransaction: {
     ccipReceive(
       message: Client.Any2EVMMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     getRouter(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -236,7 +232,7 @@ export interface CrossChainNameServiceReceiver extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     supportsInterface(
-      interfaceId: PromiseOrValue<BytesLike>,
+      interfaceId: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };

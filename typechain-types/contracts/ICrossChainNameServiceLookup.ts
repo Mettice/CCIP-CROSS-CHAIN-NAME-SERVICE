@@ -19,7 +19,6 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-  PromiseOrValue,
 } from "../common";
 
 export interface ICrossChainNameServiceLookupInterface extends utils.Interface {
@@ -31,7 +30,7 @@ export interface ICrossChainNameServiceLookupInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "register",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+    values: [string, string]
   ): string;
 
   decodeFunctionResult(functionFragment: "register", data: BytesLike): Result;
@@ -67,22 +66,22 @@ export interface ICrossChainNameServiceLookup extends BaseContract {
 
   functions: {
     register(
-      _name: PromiseOrValue<string>,
-      _address: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _name: string,
+      _address: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
   };
 
   register(
-    _name: PromiseOrValue<string>,
-    _address: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    _name: string,
+    _address: string,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     register(
-      _name: PromiseOrValue<string>,
-      _address: PromiseOrValue<string>,
+      _name: string,
+      _address: string,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -91,17 +90,17 @@ export interface ICrossChainNameServiceLookup extends BaseContract {
 
   estimateGas: {
     register(
-      _name: PromiseOrValue<string>,
-      _address: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _name: string,
+      _address: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     register(
-      _name: PromiseOrValue<string>,
-      _address: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _name: string,
+      _address: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };
 }

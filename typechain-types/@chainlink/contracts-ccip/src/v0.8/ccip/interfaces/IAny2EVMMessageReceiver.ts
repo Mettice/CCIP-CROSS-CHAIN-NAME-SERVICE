@@ -20,14 +20,10 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-  PromiseOrValue,
 } from "../../../../../../common";
 
 export declare namespace Client {
-  export type EVMTokenAmountStruct = {
-    token: PromiseOrValue<string>;
-    amount: PromiseOrValue<BigNumberish>;
-  };
+  export type EVMTokenAmountStruct = { token: string; amount: BigNumberish };
 
   export type EVMTokenAmountStructOutput = [string, BigNumber] & {
     token: string;
@@ -35,10 +31,10 @@ export declare namespace Client {
   };
 
   export type Any2EVMMessageStruct = {
-    messageId: PromiseOrValue<BytesLike>;
-    sourceChainSelector: PromiseOrValue<BigNumberish>;
-    sender: PromiseOrValue<BytesLike>;
-    data: PromiseOrValue<BytesLike>;
+    messageId: BytesLike;
+    sourceChainSelector: BigNumberish;
+    sender: BytesLike;
+    data: BytesLike;
     destTokenAmounts: Client.EVMTokenAmountStruct[];
   };
 
@@ -106,13 +102,13 @@ export interface IAny2EVMMessageReceiver extends BaseContract {
   functions: {
     ccipReceive(
       message: Client.Any2EVMMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
   };
 
   ccipReceive(
     message: Client.Any2EVMMessageStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   callStatic: {
@@ -127,14 +123,14 @@ export interface IAny2EVMMessageReceiver extends BaseContract {
   estimateGas: {
     ccipReceive(
       message: Client.Any2EVMMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     ccipReceive(
       message: Client.Any2EVMMessageStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };
 }

@@ -24,7 +24,6 @@ import type {
   TypedEvent,
   TypedListener,
   OnEvent,
-  PromiseOrValue,
 } from "../common";
 
 export interface CrossChainNameServiceRegisterInterface
@@ -60,31 +59,21 @@ export interface CrossChainNameServiceRegisterInterface
   ): string;
   encodeFunctionData(
     functionFragment: "enableChain",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<BigNumberish>
-    ]
+    values: [BigNumberish, string, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "i_lookup", values?: undefined): string;
   encodeFunctionData(functionFragment: "i_router", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "register",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "register", values: [string]): string;
   encodeFunctionData(
     functionFragment: "s_chains",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
-    values: [PromiseOrValue<string>]
+    values: [string]
   ): string;
-  encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "withdraw", values: [string]): string;
 
   decodeFunctionResult(
     functionFragment: "acceptOwnership",
@@ -166,14 +155,14 @@ export interface CrossChainNameServiceRegister extends BaseContract {
 
   functions: {
     acceptOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     enableChain(
-      chainSelector: PromiseOrValue<BigNumberish>,
-      ccnsReceiverAddress: PromiseOrValue<string>,
-      gasLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      chainSelector: BigNumberish,
+      ccnsReceiverAddress: string,
+      gasLimit: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     i_lookup(overrides?: CallOverrides): Promise<[string]>;
@@ -183,12 +172,12 @@ export interface CrossChainNameServiceRegister extends BaseContract {
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     register(
-      _name: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _name: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     s_chains(
-      arg0: PromiseOrValue<BigNumberish>,
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, string, BigNumber] & {
@@ -199,25 +188,25 @@ export interface CrossChainNameServiceRegister extends BaseContract {
     >;
 
     transferOwnership(
-      to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      to: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     withdraw(
-      beneficiary: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      beneficiary: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
   };
 
   acceptOwnership(
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   enableChain(
-    chainSelector: PromiseOrValue<BigNumberish>,
-    ccnsReceiverAddress: PromiseOrValue<string>,
-    gasLimit: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    chainSelector: BigNumberish,
+    ccnsReceiverAddress: string,
+    gasLimit: BigNumberish,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   i_lookup(overrides?: CallOverrides): Promise<string>;
@@ -227,12 +216,12 @@ export interface CrossChainNameServiceRegister extends BaseContract {
   owner(overrides?: CallOverrides): Promise<string>;
 
   register(
-    _name: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    _name: string,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   s_chains(
-    arg0: PromiseOrValue<BigNumberish>,
+    arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, string, BigNumber] & {
@@ -243,22 +232,22 @@ export interface CrossChainNameServiceRegister extends BaseContract {
   >;
 
   transferOwnership(
-    to: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    to: string,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   withdraw(
-    beneficiary: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    beneficiary: string,
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     acceptOwnership(overrides?: CallOverrides): Promise<void>;
 
     enableChain(
-      chainSelector: PromiseOrValue<BigNumberish>,
-      ccnsReceiverAddress: PromiseOrValue<string>,
-      gasLimit: PromiseOrValue<BigNumberish>,
+      chainSelector: BigNumberish,
+      ccnsReceiverAddress: string,
+      gasLimit: BigNumberish,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -268,13 +257,10 @@ export interface CrossChainNameServiceRegister extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
-    register(
-      _name: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    register(_name: string, overrides?: CallOverrides): Promise<void>;
 
     s_chains(
-      arg0: PromiseOrValue<BigNumberish>,
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, string, BigNumber] & {
@@ -284,47 +270,41 @@ export interface CrossChainNameServiceRegister extends BaseContract {
       }
     >;
 
-    transferOwnership(
-      to: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    transferOwnership(to: string, overrides?: CallOverrides): Promise<void>;
 
-    withdraw(
-      beneficiary: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    withdraw(beneficiary: string, overrides?: CallOverrides): Promise<void>;
   };
 
   filters: {
     "OwnershipTransferRequested(address,address)"(
-      from?: PromiseOrValue<string> | null,
-      to?: PromiseOrValue<string> | null
+      from?: string | null,
+      to?: string | null
     ): OwnershipTransferRequestedEventFilter;
     OwnershipTransferRequested(
-      from?: PromiseOrValue<string> | null,
-      to?: PromiseOrValue<string> | null
+      from?: string | null,
+      to?: string | null
     ): OwnershipTransferRequestedEventFilter;
 
     "OwnershipTransferred(address,address)"(
-      from?: PromiseOrValue<string> | null,
-      to?: PromiseOrValue<string> | null
+      from?: string | null,
+      to?: string | null
     ): OwnershipTransferredEventFilter;
     OwnershipTransferred(
-      from?: PromiseOrValue<string> | null,
-      to?: PromiseOrValue<string> | null
+      from?: string | null,
+      to?: string | null
     ): OwnershipTransferredEventFilter;
   };
 
   estimateGas: {
     acceptOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     enableChain(
-      chainSelector: PromiseOrValue<BigNumberish>,
-      ccnsReceiverAddress: PromiseOrValue<string>,
-      gasLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      chainSelector: BigNumberish,
+      ccnsReceiverAddress: string,
+      gasLimit: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     i_lookup(overrides?: CallOverrides): Promise<BigNumber>;
@@ -334,36 +314,33 @@ export interface CrossChainNameServiceRegister extends BaseContract {
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     register(
-      _name: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _name: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
-    s_chains(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    s_chains(arg0: BigNumberish, overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
-      to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      to: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     withdraw(
-      beneficiary: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      beneficiary: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
     acceptOwnership(
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     enableChain(
-      chainSelector: PromiseOrValue<BigNumberish>,
-      ccnsReceiverAddress: PromiseOrValue<string>,
-      gasLimit: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      chainSelector: BigNumberish,
+      ccnsReceiverAddress: string,
+      gasLimit: BigNumberish,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     i_lookup(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -373,23 +350,23 @@ export interface CrossChainNameServiceRegister extends BaseContract {
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     register(
-      _name: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      _name: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     s_chains(
-      arg0: PromiseOrValue<BigNumberish>,
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     transferOwnership(
-      to: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      to: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     withdraw(
-      beneficiary: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      beneficiary: string,
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
   };
 }
