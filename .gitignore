@@ -1,18 +1,25 @@
 # Node.js dependencies
 node_modules/
 
-# Environment variables
-.env
-.env.enc
+# Build artifacts
+typechain-types/
 
 # Coverage reports
 coverage/
 coverage.json
 
-# Deployment artifacts
-deployments/
+# Other directories
+artifacts/
+cache/
 
-# Ignore build artifacts
+# Node.js dependencies
+node_modules/
+
+# Build artifacts
 artifacts/
 cache/
 typechain-types/
+
+# Coverage reports
+coverage/
+coverage.json
