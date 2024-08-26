@@ -23,3 +23,15 @@ typechain-types/
 # Coverage reports
 coverage/
 coverage.json
+
+# Node.js dependencies
+node_modules/
+
+# Build artifacts
+artifacts/
+cache/
+typechain-types/
+
+# Coverage reports
+coverage/
+coverage.json
