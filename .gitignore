@@ -1,11 +1,13 @@
-node_modules
+# Node.js dependencies
+node_modules/
+
+# Environment variables
 .env
 .env.enc
-coverage
+
+# Coverage reports
+coverage/
 coverage.json
-deployments
 
-# Hardhat files
-cache
-artifacts
-
+# Deployment artifacts
+deployments/
