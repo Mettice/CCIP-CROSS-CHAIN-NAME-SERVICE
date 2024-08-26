@@ -7,3 +7,4 @@ export type { CCIPLocalSimulator } from "./CCIPLocalSimulator";
 export type { CrossChainNameServiceLookup } from "./CrossChainNameServiceLookup";
 export type { CrossChainNameServiceRegister } from "./CrossChainNameServiceRegister";
 export type { ICrossChainNameServiceLookup } from "./ICrossChainNameServiceLookup";
+export type { MockRouter } from "./MockRouter";

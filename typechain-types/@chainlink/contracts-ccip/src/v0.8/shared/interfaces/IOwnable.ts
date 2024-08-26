@@ -3,33 +3,26 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
+  FunctionFragment,
+  Result,
+  Interface,
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "../../../../../../common";
 
-export interface IOwnableInterface extends utils.Interface {
-  functions: {
-    "acceptOwnership()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
-  };
-
+export interface IOwnableInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic: "acceptOwnership" | "owner" | "transferOwnership"
+    nameOrSignature: "acceptOwnership" | "owner" | "transferOwnership"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -39,7 +32,7 @@ export interface IOwnableInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
-    values: [string]
+    values: [AddressLike]
   ): string;
 
   decodeFunctionResult(
@@ -51,102 +44,74 @@ export interface IOwnableInterface extends utils.Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
-
-  events: {};
 }
 
 export interface IOwnable extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): IOwnable;
+  waitForDeployment(): Promise<this>;
 
   interface: IOwnableInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    acceptOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    owner(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    transferOwnership(
-      recipient: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-  };
+  acceptOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
-  acceptOwnership(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  owner: TypedContractMethod<[], [string], "nonpayable">;
 
-  owner(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  transferOwnership: TypedContractMethod<
+    [recipient: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
-  transferOwnership(
-    recipient: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
 
-  callStatic: {
-    acceptOwnership(overrides?: CallOverrides): Promise<void>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    transferOwnership(
-      recipient: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-  };
+  getFunction(
+    nameOrSignature: "acceptOwnership"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "nonpayable">;
+  getFunction(
+    nameOrSignature: "transferOwnership"
+  ): TypedContractMethod<[recipient: AddressLike], [void], "nonpayable">;
 
   filters: {};
-
-  estimateGas: {
-    acceptOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    owner(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
-
-    transferOwnership(
-      recipient: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    acceptOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    owner(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      recipient: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-  };
 }

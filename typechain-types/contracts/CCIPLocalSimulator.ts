@@ -3,36 +3,27 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
+  FunctionFragment,
+  Result,
+  Interface,
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "../common";
 
-export interface CCIPLocalSimulatorInterface extends utils.Interface {
-  functions: {
-    "configuration()": FunctionFragment;
-    "getSupportedTokens(uint64)": FunctionFragment;
-    "isChainSupported(uint64)": FunctionFragment;
-    "requestLinkFromFaucet(address,uint256)": FunctionFragment;
-    "supportNewToken(address)": FunctionFragment;
-  };
-
+export interface CCIPLocalSimulatorInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "configuration"
       | "getSupportedTokens"
       | "isChainSupported"
@@ -54,11 +45,11 @@ export interface CCIPLocalSimulatorInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "requestLinkFromFaucet",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "supportNewToken",
-    values: [string]
+    values: [AddressLike]
   ): string;
 
   decodeFunctionResult(
@@ -81,42 +72,56 @@ export interface CCIPLocalSimulatorInterface extends utils.Interface {
     functionFragment: "supportNewToken",
     data: BytesLike
   ): Result;
-
-  events: {};
 }
 
 export interface CCIPLocalSimulator extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): CCIPLocalSimulator;
+  waitForDeployment(): Promise<this>;
 
   interface: CCIPLocalSimulatorInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    configuration(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, string, string, string, string, string, string] & {
-        chainSelector_: BigNumber;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
+
+  configuration: TypedContractMethod<
+    [],
+    [
+      [bigint, string, string, string, string, string, string] & {
+        chainSelector_: bigint;
         sourceRouter_: string;
         destinationRouter_: string;
         wrappedNative_: string;
@@ -124,71 +129,45 @@ export interface CCIPLocalSimulator extends BaseContract {
         ccipBnM_: string;
         ccipLnM_: string;
       }
-    >;
-
-    getSupportedTokens(
-      chainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string[]] & { tokens: string[] }>;
-
-    isChainSupported(
-      chainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[boolean] & { supported: boolean }>;
-
-    requestLinkFromFaucet(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    supportNewToken(
-      tokenAddress: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-  };
-
-  configuration(
-    overrides?: CallOverrides
-  ): Promise<
-    [BigNumber, string, string, string, string, string, string] & {
-      chainSelector_: BigNumber;
-      sourceRouter_: string;
-      destinationRouter_: string;
-      wrappedNative_: string;
-      linkToken_: string;
-      ccipBnM_: string;
-      ccipLnM_: string;
-    }
+    ],
+    "view"
   >;
 
-  getSupportedTokens(
-    chainSelector: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<string[]>;
+  getSupportedTokens: TypedContractMethod<
+    [chainSelector: BigNumberish],
+    [string[]],
+    "view"
+  >;
 
-  isChainSupported(
-    chainSelector: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
+  isChainSupported: TypedContractMethod<
+    [chainSelector: BigNumberish],
+    [boolean],
+    "view"
+  >;
 
-  requestLinkFromFaucet(
-    to: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  requestLinkFromFaucet: TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
 
-  supportNewToken(
-    tokenAddress: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  supportNewToken: TypedContractMethod<
+    [tokenAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
-  callStatic: {
-    configuration(
-      overrides?: CallOverrides
-    ): Promise<
-      [BigNumber, string, string, string, string, string, string] & {
-        chainSelector_: BigNumber;
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "configuration"
+  ): TypedContractMethod<
+    [],
+    [
+      [bigint, string, string, string, string, string, string] & {
+        chainSelector_: bigint;
         sourceRouter_: string;
         destinationRouter_: string;
         wrappedNative_: string;
@@ -196,79 +175,25 @@ export interface CCIPLocalSimulator extends BaseContract {
         ccipBnM_: string;
         ccipLnM_: string;
       }
-    >;
-
-    getSupportedTokens(
-      chainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string[]>;
-
-    isChainSupported(
-      chainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    requestLinkFromFaucet(
-      to: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    supportNewToken(
-      tokenAddress: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-  };
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getSupportedTokens"
+  ): TypedContractMethod<[chainSelector: BigNumberish], [string[]], "view">;
+  getFunction(
+    nameOrSignature: "isChainSupported"
+  ): TypedContractMethod<[chainSelector: BigNumberish], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "requestLinkFromFaucet"
+  ): TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "supportNewToken"
+  ): TypedContractMethod<[tokenAddress: AddressLike], [void], "nonpayable">;
 
   filters: {};
-
-  estimateGas: {
-    configuration(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getSupportedTokens(
-      chainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isChainSupported(
-      chainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    requestLinkFromFaucet(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    supportNewToken(
-      tokenAddress: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    configuration(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getSupportedTokens(
-      chainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isChainSupported(
-      chainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    requestLinkFromFaucet(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    supportNewToken(
-      tokenAddress: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-  };
 }

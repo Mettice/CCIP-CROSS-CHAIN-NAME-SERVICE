@@ -3,31 +3,25 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BytesLike,
-  CallOverrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
+  FunctionFragment,
+  Result,
+  Interface,
+  ContractRunner,
+  ContractMethod,
+  Listener,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "../../../../../../common";
 
-export interface InternalInterface extends utils.Interface {
-  functions: {
-    "GAS_PRICE_BITS()": FunctionFragment;
-    "MESSAGE_FIXED_BYTES()": FunctionFragment;
-    "MESSAGE_FIXED_BYTES_PER_TOKEN()": FunctionFragment;
-  };
-
+export interface InternalInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "GAS_PRICE_BITS"
       | "MESSAGE_FIXED_BYTES"
       | "MESSAGE_FIXED_BYTES_PER_TOKEN"
@@ -58,83 +52,70 @@ export interface InternalInterface extends utils.Interface {
     functionFragment: "MESSAGE_FIXED_BYTES_PER_TOKEN",
     data: BytesLike
   ): Result;
-
-  events: {};
 }
 
 export interface Internal extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): Internal;
+  waitForDeployment(): Promise<this>;
 
   interface: InternalInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    GAS_PRICE_BITS(overrides?: CallOverrides): Promise<[number]>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    MESSAGE_FIXED_BYTES(overrides?: CallOverrides): Promise<[BigNumber]>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    MESSAGE_FIXED_BYTES_PER_TOKEN(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-  };
+  GAS_PRICE_BITS: TypedContractMethod<[], [bigint], "view">;
 
-  GAS_PRICE_BITS(overrides?: CallOverrides): Promise<number>;
+  MESSAGE_FIXED_BYTES: TypedContractMethod<[], [bigint], "view">;
 
-  MESSAGE_FIXED_BYTES(overrides?: CallOverrides): Promise<BigNumber>;
+  MESSAGE_FIXED_BYTES_PER_TOKEN: TypedContractMethod<[], [bigint], "view">;
 
-  MESSAGE_FIXED_BYTES_PER_TOKEN(overrides?: CallOverrides): Promise<BigNumber>;
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
 
-  callStatic: {
-    GAS_PRICE_BITS(overrides?: CallOverrides): Promise<number>;
-
-    MESSAGE_FIXED_BYTES(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MESSAGE_FIXED_BYTES_PER_TOKEN(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-  };
+  getFunction(
+    nameOrSignature: "GAS_PRICE_BITS"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "MESSAGE_FIXED_BYTES"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "MESSAGE_FIXED_BYTES_PER_TOKEN"
+  ): TypedContractMethod<[], [bigint], "view">;
 
   filters: {};
-
-  estimateGas: {
-    GAS_PRICE_BITS(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MESSAGE_FIXED_BYTES(overrides?: CallOverrides): Promise<BigNumber>;
-
-    MESSAGE_FIXED_BYTES_PER_TOKEN(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    GAS_PRICE_BITS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    MESSAGE_FIXED_BYTES(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    MESSAGE_FIXED_BYTES_PER_TOKEN(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-  };
 }

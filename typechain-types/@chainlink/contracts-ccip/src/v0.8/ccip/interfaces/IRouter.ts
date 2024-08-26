@@ -3,31 +3,33 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
+  FunctionFragment,
+  Result,
+  Interface,
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "../../../../../../common";
 
 export declare namespace Client {
-  export type EVMTokenAmountStruct = { token: string; amount: BigNumberish };
+  export type EVMTokenAmountStruct = {
+    token: AddressLike;
+    amount: BigNumberish;
+  };
 
-  export type EVMTokenAmountStructOutput = [string, BigNumber] & {
+  export type EVMTokenAmountStructOutput = [token: string, amount: bigint] & {
     token: string;
-    amount: BigNumber;
+    amount: bigint;
   };
 
   export type Any2EVMMessageStruct = {
@@ -39,29 +41,23 @@ export declare namespace Client {
   };
 
   export type Any2EVMMessageStructOutput = [
-    string,
-    BigNumber,
-    string,
-    string,
-    Client.EVMTokenAmountStructOutput[]
+    messageId: string,
+    sourceChainSelector: bigint,
+    sender: string,
+    data: string,
+    destTokenAmounts: Client.EVMTokenAmountStructOutput[]
   ] & {
     messageId: string;
-    sourceChainSelector: BigNumber;
+    sourceChainSelector: bigint;
     sender: string;
     data: string;
     destTokenAmounts: Client.EVMTokenAmountStructOutput[];
   };
 }
 
-export interface IRouterInterface extends utils.Interface {
-  functions: {
-    "getOnRamp(uint64)": FunctionFragment;
-    "isOffRamp(uint64,address)": FunctionFragment;
-    "routeMessage((bytes32,uint64,bytes,bytes,(address,uint256)[]),uint16,uint256,address)": FunctionFragment;
-  };
-
+export interface IRouterInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic: "getOnRamp" | "isOffRamp" | "routeMessage"
+    nameOrSignature: "getOnRamp" | "isOffRamp" | "routeMessage"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -70,11 +66,16 @@ export interface IRouterInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isOffRamp",
-    values: [BigNumberish, string]
+    values: [BigNumberish, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "routeMessage",
-    values: [Client.Any2EVMMessageStruct, BigNumberish, BigNumberish, string]
+    values: [
+      Client.Any2EVMMessageStruct,
+      BigNumberish,
+      BigNumberish,
+      AddressLike
+    ]
   ): string;
 
   decodeFunctionResult(functionFragment: "getOnRamp", data: BytesLike): Result;
@@ -83,144 +84,112 @@ export interface IRouterInterface extends utils.Interface {
     functionFragment: "routeMessage",
     data: BytesLike
   ): Result;
-
-  events: {};
 }
 
 export interface IRouter extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): IRouter;
+  waitForDeployment(): Promise<this>;
 
   interface: IRouterInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    getOnRamp(
-      destChainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string] & { onRampAddress: string }>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    isOffRamp(
-      sourceChainSelector: BigNumberish,
-      offRamp: string,
-      overrides?: CallOverrides
-    ): Promise<[boolean] & { isOffRamp: boolean }>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    routeMessage(
+  getOnRamp: TypedContractMethod<
+    [destChainSelector: BigNumberish],
+    [string],
+    "view"
+  >;
+
+  isOffRamp: TypedContractMethod<
+    [sourceChainSelector: BigNumberish, offRamp: AddressLike],
+    [boolean],
+    "view"
+  >;
+
+  routeMessage: TypedContractMethod<
+    [
       message: Client.Any2EVMMessageStruct,
       gasForCallExactCheck: BigNumberish,
       gasLimit: BigNumberish,
-      receiver: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-  };
-
-  getOnRamp(
-    destChainSelector: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  isOffRamp(
-    sourceChainSelector: BigNumberish,
-    offRamp: string,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  routeMessage(
-    message: Client.Any2EVMMessageStruct,
-    gasForCallExactCheck: BigNumberish,
-    gasLimit: BigNumberish,
-    receiver: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  callStatic: {
-    getOnRamp(
-      destChainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    isOffRamp(
-      sourceChainSelector: BigNumberish,
-      offRamp: string,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    routeMessage(
-      message: Client.Any2EVMMessageStruct,
-      gasForCallExactCheck: BigNumberish,
-      gasLimit: BigNumberish,
-      receiver: string,
-      overrides?: CallOverrides
-    ): Promise<
-      [boolean, string, BigNumber] & {
+      receiver: AddressLike
+    ],
+    [
+      [boolean, string, bigint] & {
         success: boolean;
         retBytes: string;
-        gasUsed: BigNumber;
+        gasUsed: bigint;
       }
-    >;
-  };
+    ],
+    "nonpayable"
+  >;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "getOnRamp"
+  ): TypedContractMethod<[destChainSelector: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "isOffRamp"
+  ): TypedContractMethod<
+    [sourceChainSelector: BigNumberish, offRamp: AddressLike],
+    [boolean],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "routeMessage"
+  ): TypedContractMethod<
+    [
+      message: Client.Any2EVMMessageStruct,
+      gasForCallExactCheck: BigNumberish,
+      gasLimit: BigNumberish,
+      receiver: AddressLike
+    ],
+    [
+      [boolean, string, bigint] & {
+        success: boolean;
+        retBytes: string;
+        gasUsed: bigint;
+      }
+    ],
+    "nonpayable"
+  >;
 
   filters: {};
-
-  estimateGas: {
-    getOnRamp(
-      destChainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    isOffRamp(
-      sourceChainSelector: BigNumberish,
-      offRamp: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    routeMessage(
-      message: Client.Any2EVMMessageStruct,
-      gasForCallExactCheck: BigNumberish,
-      gasLimit: BigNumberish,
-      receiver: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    getOnRamp(
-      destChainSelector: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isOffRamp(
-      sourceChainSelector: BigNumberish,
-      offRamp: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    routeMessage(
-      message: Client.Any2EVMMessageStruct,
-      gasForCallExactCheck: BigNumberish,
-      gasLimit: BigNumberish,
-      receiver: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-  };
 }

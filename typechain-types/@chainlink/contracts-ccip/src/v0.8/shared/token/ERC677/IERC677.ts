@@ -3,147 +3,146 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "../../../../../../../common";
 
-export interface IERC677Interface extends utils.Interface {
-  functions: {
-    "transferAndCall(address,uint256,bytes)": FunctionFragment;
-  };
+export interface IERC677Interface extends Interface {
+  getFunction(nameOrSignature: "transferAndCall"): FunctionFragment;
 
-  getFunction(nameOrSignatureOrTopic: "transferAndCall"): FunctionFragment;
+  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 
   encodeFunctionData(
     functionFragment: "transferAndCall",
-    values: [string, BigNumberish, BytesLike]
+    values: [AddressLike, BigNumberish, BytesLike]
   ): string;
 
   decodeFunctionResult(
     functionFragment: "transferAndCall",
     data: BytesLike
   ): Result;
-
-  events: {
-    "Transfer(address,address,uint256,bytes)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
-export interface TransferEventObject {
-  from: string;
-  to: string;
-  value: BigNumber;
-  data: string;
+export namespace TransferEvent {
+  export type InputTuple = [
+    from: AddressLike,
+    to: AddressLike,
+    value: BigNumberish,
+    data: BytesLike
+  ];
+  export type OutputTuple = [
+    from: string,
+    to: string,
+    value: bigint,
+    data: string
+  ];
+  export interface OutputObject {
+    from: string;
+    to: string;
+    value: bigint;
+    data: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TransferEvent = TypedEvent<
-  [string, string, BigNumber, string],
-  TransferEventObject
->;
-
-export type TransferEventFilter = TypedEventFilter<TransferEvent>;
 
 export interface IERC677 extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): IERC677;
+  waitForDeployment(): Promise<this>;
 
   interface: IERC677Interface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    transferAndCall(
-      to: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-  };
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  transferAndCall(
-    to: string,
-    amount: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-  callStatic: {
-    transferAndCall(
-      to: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-  };
+  transferAndCall: TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish, data: BytesLike],
+    [boolean],
+    "nonpayable"
+  >;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "transferAndCall"
+  ): TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish, data: BytesLike],
+    [boolean],
+    "nonpayable"
+  >;
+
+  getEvent(
+    key: "Transfer"
+  ): TypedContractEvent<
+    TransferEvent.InputTuple,
+    TransferEvent.OutputTuple,
+    TransferEvent.OutputObject
+  >;
 
   filters: {
-    "Transfer(address,address,uint256,bytes)"(
-      from?: string | null,
-      to?: string | null,
-      value?: null,
-      data?: null
-    ): TransferEventFilter;
-    Transfer(
-      from?: string | null,
-      to?: string | null,
-      value?: null,
-      data?: null
-    ): TransferEventFilter;
-  };
-
-  estimateGas: {
-    transferAndCall(
-      to: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    transferAndCall(
-      to: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    "Transfer(address,address,uint256,bytes)": TypedContractEvent<
+      TransferEvent.InputTuple,
+      TransferEvent.OutputTuple,
+      TransferEvent.OutputObject
+    >;
+    Transfer: TypedContractEvent<
+      TransferEvent.InputTuple,
+      TransferEvent.OutputTuple,
+      TransferEvent.OutputObject
+    >;
   };
 }

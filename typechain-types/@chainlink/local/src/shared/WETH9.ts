@@ -3,47 +3,29 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PayableOverrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "../../../../common";
 
-export interface WETH9Interface extends utils.Interface {
-  functions: {
-    "allowance(address,address)": FunctionFragment;
-    "approve(address,uint256)": FunctionFragment;
-    "balanceOf(address)": FunctionFragment;
-    "decimals()": FunctionFragment;
-    "deposit()": FunctionFragment;
-    "name()": FunctionFragment;
-    "symbol()": FunctionFragment;
-    "totalSupply()": FunctionFragment;
-    "transfer(address,uint256)": FunctionFragment;
-    "transferFrom(address,address,uint256)": FunctionFragment;
-    "withdraw(uint256)": FunctionFragment;
-  };
-
+export interface WETH9Interface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "allowance"
       | "approve"
       | "balanceOf"
@@ -57,15 +39,22 @@ export interface WETH9Interface extends utils.Interface {
       | "withdraw"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic: "Approval" | "Deposit" | "Transfer" | "Withdrawal"
+  ): EventFragment;
+
   encodeFunctionData(
     functionFragment: "allowance",
-    values: [string, string]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "approve",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "balanceOf",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(functionFragment: "deposit", values?: undefined): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
@@ -76,11 +65,11 @@ export interface WETH9Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "transfer",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "transferFrom",
-    values: [string, string, BigNumberish]
+    values: [AddressLike, AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "withdraw",
@@ -104,348 +93,277 @@ export interface WETH9Interface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
-
-  events: {
-    "Approval(address,address,uint256)": EventFragment;
-    "Deposit(address,uint256)": EventFragment;
-    "Transfer(address,address,uint256)": EventFragment;
-    "Withdrawal(address,uint256)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Deposit"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "Withdrawal"): EventFragment;
 }
 
-export interface ApprovalEventObject {
-  src: string;
-  guy: string;
-  wad: BigNumber;
+export namespace ApprovalEvent {
+  export type InputTuple = [
+    src: AddressLike,
+    guy: AddressLike,
+    wad: BigNumberish
+  ];
+  export type OutputTuple = [src: string, guy: string, wad: bigint];
+  export interface OutputObject {
+    src: string;
+    guy: string;
+    wad: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type ApprovalEvent = TypedEvent<
-  [string, string, BigNumber],
-  ApprovalEventObject
->;
 
-export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
-
-export interface DepositEventObject {
-  dst: string;
-  wad: BigNumber;
+export namespace DepositEvent {
+  export type InputTuple = [dst: AddressLike, wad: BigNumberish];
+  export type OutputTuple = [dst: string, wad: bigint];
+  export interface OutputObject {
+    dst: string;
+    wad: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type DepositEvent = TypedEvent<[string, BigNumber], DepositEventObject>;
 
-export type DepositEventFilter = TypedEventFilter<DepositEvent>;
-
-export interface TransferEventObject {
-  src: string;
-  dst: string;
-  wad: BigNumber;
+export namespace TransferEvent {
+  export type InputTuple = [
+    src: AddressLike,
+    dst: AddressLike,
+    wad: BigNumberish
+  ];
+  export type OutputTuple = [src: string, dst: string, wad: bigint];
+  export interface OutputObject {
+    src: string;
+    dst: string;
+    wad: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type TransferEvent = TypedEvent<
-  [string, string, BigNumber],
-  TransferEventObject
->;
 
-export type TransferEventFilter = TypedEventFilter<TransferEvent>;
-
-export interface WithdrawalEventObject {
-  src: string;
-  wad: BigNumber;
+export namespace WithdrawalEvent {
+  export type InputTuple = [src: AddressLike, wad: BigNumberish];
+  export type OutputTuple = [src: string, wad: bigint];
+  export interface OutputObject {
+    src: string;
+    wad: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type WithdrawalEvent = TypedEvent<
-  [string, BigNumber],
-  WithdrawalEventObject
->;
-
-export type WithdrawalEventFilter = TypedEventFilter<WithdrawalEvent>;
 
 export interface WETH9 extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): WETH9;
+  waitForDeployment(): Promise<this>;
 
   interface: WETH9Interface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    allowance(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    approve(
-      guy: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    balanceOf(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
+  allowance: TypedContractMethod<
+    [arg0: AddressLike, arg1: AddressLike],
+    [bigint],
+    "view"
+  >;
 
-    decimals(overrides?: CallOverrides): Promise<[number]>;
+  approve: TypedContractMethod<
+    [guy: AddressLike, wad: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
 
-    deposit(
-      overrides?: PayableOverrides & { from?: string }
-    ): Promise<ContractTransaction>;
+  balanceOf: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
-    name(overrides?: CallOverrides): Promise<[string]>;
+  decimals: TypedContractMethod<[], [bigint], "view">;
 
-    symbol(overrides?: CallOverrides): Promise<[string]>;
+  deposit: TypedContractMethod<[], [void], "payable">;
 
-    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+  name: TypedContractMethod<[], [string], "view">;
 
-    transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+  symbol: TypedContractMethod<[], [string], "view">;
 
-    transferFrom(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
+  totalSupply: TypedContractMethod<[], [bigint], "view">;
 
-    withdraw(
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-  };
+  transfer: TypedContractMethod<
+    [dst: AddressLike, wad: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
 
-  allowance(
-    arg0: string,
-    arg1: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  transferFrom: TypedContractMethod<
+    [src: AddressLike, dst: AddressLike, wad: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
 
-  approve(
-    guy: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
+  withdraw: TypedContractMethod<[wad: BigNumberish], [void], "nonpayable">;
 
-  balanceOf(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
 
-  decimals(overrides?: CallOverrides): Promise<number>;
+  getFunction(
+    nameOrSignature: "allowance"
+  ): TypedContractMethod<
+    [arg0: AddressLike, arg1: AddressLike],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "approve"
+  ): TypedContractMethod<
+    [guy: AddressLike, wad: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "balanceOf"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "decimals"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "deposit"
+  ): TypedContractMethod<[], [void], "payable">;
+  getFunction(
+    nameOrSignature: "name"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "symbol"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "totalSupply"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "transfer"
+  ): TypedContractMethod<
+    [dst: AddressLike, wad: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "transferFrom"
+  ): TypedContractMethod<
+    [src: AddressLike, dst: AddressLike, wad: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "withdraw"
+  ): TypedContractMethod<[wad: BigNumberish], [void], "nonpayable">;
 
-  deposit(
-    overrides?: PayableOverrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  name(overrides?: CallOverrides): Promise<string>;
-
-  symbol(overrides?: CallOverrides): Promise<string>;
-
-  totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-  transfer(
-    dst: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  transferFrom(
-    src: string,
-    dst: string,
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  withdraw(
-    wad: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  callStatic: {
-    allowance(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    approve(
-      guy: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    balanceOf(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    decimals(overrides?: CallOverrides): Promise<number>;
-
-    deposit(overrides?: CallOverrides): Promise<void>;
-
-    name(overrides?: CallOverrides): Promise<string>;
-
-    symbol(overrides?: CallOverrides): Promise<string>;
-
-    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    transferFrom(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    withdraw(wad: BigNumberish, overrides?: CallOverrides): Promise<void>;
-  };
+  getEvent(
+    key: "Approval"
+  ): TypedContractEvent<
+    ApprovalEvent.InputTuple,
+    ApprovalEvent.OutputTuple,
+    ApprovalEvent.OutputObject
+  >;
+  getEvent(
+    key: "Deposit"
+  ): TypedContractEvent<
+    DepositEvent.InputTuple,
+    DepositEvent.OutputTuple,
+    DepositEvent.OutputObject
+  >;
+  getEvent(
+    key: "Transfer"
+  ): TypedContractEvent<
+    TransferEvent.InputTuple,
+    TransferEvent.OutputTuple,
+    TransferEvent.OutputObject
+  >;
+  getEvent(
+    key: "Withdrawal"
+  ): TypedContractEvent<
+    WithdrawalEvent.InputTuple,
+    WithdrawalEvent.OutputTuple,
+    WithdrawalEvent.OutputObject
+  >;
 
   filters: {
-    "Approval(address,address,uint256)"(
-      src?: string | null,
-      guy?: string | null,
-      wad?: null
-    ): ApprovalEventFilter;
-    Approval(
-      src?: string | null,
-      guy?: string | null,
-      wad?: null
-    ): ApprovalEventFilter;
+    "Approval(address,address,uint256)": TypedContractEvent<
+      ApprovalEvent.InputTuple,
+      ApprovalEvent.OutputTuple,
+      ApprovalEvent.OutputObject
+    >;
+    Approval: TypedContractEvent<
+      ApprovalEvent.InputTuple,
+      ApprovalEvent.OutputTuple,
+      ApprovalEvent.OutputObject
+    >;
 
-    "Deposit(address,uint256)"(
-      dst?: string | null,
-      wad?: null
-    ): DepositEventFilter;
-    Deposit(dst?: string | null, wad?: null): DepositEventFilter;
+    "Deposit(address,uint256)": TypedContractEvent<
+      DepositEvent.InputTuple,
+      DepositEvent.OutputTuple,
+      DepositEvent.OutputObject
+    >;
+    Deposit: TypedContractEvent<
+      DepositEvent.InputTuple,
+      DepositEvent.OutputTuple,
+      DepositEvent.OutputObject
+    >;
 
-    "Transfer(address,address,uint256)"(
-      src?: string | null,
-      dst?: string | null,
-      wad?: null
-    ): TransferEventFilter;
-    Transfer(
-      src?: string | null,
-      dst?: string | null,
-      wad?: null
-    ): TransferEventFilter;
+    "Transfer(address,address,uint256)": TypedContractEvent<
+      TransferEvent.InputTuple,
+      TransferEvent.OutputTuple,
+      TransferEvent.OutputObject
+    >;
+    Transfer: TypedContractEvent<
+      TransferEvent.InputTuple,
+      TransferEvent.OutputTuple,
+      TransferEvent.OutputObject
+    >;
 
-    "Withdrawal(address,uint256)"(
-      src?: string | null,
-      wad?: null
-    ): WithdrawalEventFilter;
-    Withdrawal(src?: string | null, wad?: null): WithdrawalEventFilter;
-  };
-
-  estimateGas: {
-    allowance(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    approve(
-      guy: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    balanceOf(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    decimals(overrides?: CallOverrides): Promise<BigNumber>;
-
-    deposit(
-      overrides?: PayableOverrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    name(overrides?: CallOverrides): Promise<BigNumber>;
-
-    symbol(overrides?: CallOverrides): Promise<BigNumber>;
-
-    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    transferFrom(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    withdraw(
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    allowance(
-      arg0: string,
-      arg1: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    approve(
-      guy: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    balanceOf(
-      arg0: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    deposit(
-      overrides?: PayableOverrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    transfer(
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    transferFrom(
-      src: string,
-      dst: string,
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    withdraw(
-      wad: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    "Withdrawal(address,uint256)": TypedContractEvent<
+      WithdrawalEvent.InputTuple,
+      WithdrawalEvent.OutputTuple,
+      WithdrawalEvent.OutputObject
+    >;
+    Withdrawal: TypedContractEvent<
+      WithdrawalEvent.InputTuple,
+      WithdrawalEvent.OutputTuple,
+      WithdrawalEvent.OutputObject
+    >;
   };
 }

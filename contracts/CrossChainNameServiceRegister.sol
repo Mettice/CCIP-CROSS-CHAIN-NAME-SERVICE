@@ -1,23 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {IRouterClient} from "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
-import {Client} from "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
-import {OwnerIsCreator} from "@chainlink/contracts-ccip/src/v0.8/shared/access/OwnerIsCreator.sol";
+import "@chainlink/contracts-ccip/src/v0.8/ccip/interfaces/IRouterClient.sol";
+import "@chainlink/contracts-ccip/src/v0.8/ccip/libraries/Client.sol";
+import "@chainlink/contracts-ccip/src/v0.8/shared/access/OwnerIsCreator.sol";
 
-import {ICrossChainNameServiceLookup} from "./ICrossChainNameServiceLookup.sol";
+import "./ICrossChainNameServiceLookup.sol";
 
-/**
- * THIS IS AN EXAMPLE CONTRACT THAT USES HARDCODED VALUES FOR CLARITY.
- * THIS IS AN EXAMPLE CONTRACT THAT USES UN-AUDITED CODE.
- * DO NOT USE THIS CODE IN PRODUCTION.
- */
 contract CrossChainNameServiceRegister is OwnerIsCreator {
     struct Chain {
-        // --- slot 0 ---
         uint64 chainSelector;
         address ccnsReceiverAddress;
-        // --- slot 1 ---
         uint256 gasLimit;
     }
 
@@ -54,7 +47,6 @@ contract CrossChainNameServiceRegister is OwnerIsCreator {
         );
     }
 
-    // Assumes address(this) has sufficient native asset.
     function register(string memory _name) external {
         uint256 length = s_chains.length;
         for (uint256 i; i < length; ) {
@@ -67,7 +59,7 @@ contract CrossChainNameServiceRegister is OwnerIsCreator {
                 extraArgs: Client._argsToBytes(
                     Client.EVMExtraArgsV1({gasLimit: currentChain.gasLimit})
                 ),
-                feeToken: address(0) // We leave the feeToken empty indicating we'll pay raw native.
+                feeToken: address(0)
             });
 
             i_router.ccipSend{

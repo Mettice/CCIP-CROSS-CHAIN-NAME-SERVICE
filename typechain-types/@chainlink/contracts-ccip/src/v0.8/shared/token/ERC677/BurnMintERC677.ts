@@ -3,67 +3,29 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "../../../../../../../common";
 
-export interface BurnMintERC677Interface extends utils.Interface {
-  functions: {
-    "acceptOwnership()": FunctionFragment;
-    "allowance(address,address)": FunctionFragment;
-    "approve(address,uint256)": FunctionFragment;
-    "balanceOf(address)": FunctionFragment;
-    "burn(uint256)": FunctionFragment;
-    "burn(address,uint256)": FunctionFragment;
-    "burnFrom(address,uint256)": FunctionFragment;
-    "decimals()": FunctionFragment;
-    "decreaseAllowance(address,uint256)": FunctionFragment;
-    "decreaseApproval(address,uint256)": FunctionFragment;
-    "getBurners()": FunctionFragment;
-    "getMinters()": FunctionFragment;
-    "grantBurnRole(address)": FunctionFragment;
-    "grantMintAndBurnRoles(address)": FunctionFragment;
-    "grantMintRole(address)": FunctionFragment;
-    "increaseAllowance(address,uint256)": FunctionFragment;
-    "increaseApproval(address,uint256)": FunctionFragment;
-    "isBurner(address)": FunctionFragment;
-    "isMinter(address)": FunctionFragment;
-    "maxSupply()": FunctionFragment;
-    "mint(address,uint256)": FunctionFragment;
-    "name()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "revokeBurnRole(address)": FunctionFragment;
-    "revokeMintRole(address)": FunctionFragment;
-    "supportsInterface(bytes4)": FunctionFragment;
-    "symbol()": FunctionFragment;
-    "totalSupply()": FunctionFragment;
-    "transfer(address,uint256)": FunctionFragment;
-    "transferAndCall(address,uint256,bytes)": FunctionFragment;
-    "transferFrom(address,address,uint256)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
-  };
-
+export interface BurnMintERC677Interface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "acceptOwnership"
       | "allowance"
       | "approve"
@@ -98,39 +60,55 @@ export interface BurnMintERC677Interface extends utils.Interface {
       | "transferOwnership"
   ): FunctionFragment;
 
+  getEvent(
+    nameOrSignatureOrTopic:
+      | "Approval"
+      | "BurnAccessGranted"
+      | "BurnAccessRevoked"
+      | "MintAccessGranted"
+      | "MintAccessRevoked"
+      | "OwnershipTransferRequested"
+      | "OwnershipTransferred"
+      | "Transfer(address,address,uint256)"
+      | "Transfer(address,address,uint256,bytes)"
+  ): EventFragment;
+
   encodeFunctionData(
     functionFragment: "acceptOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "allowance",
-    values: [string, string]
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "approve",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "balanceOf",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "burn(uint256)",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "burn(address,uint256)",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "burnFrom",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "decreaseAllowance",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "decreaseApproval",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getBurners",
@@ -142,40 +120,46 @@ export interface BurnMintERC677Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "grantBurnRole",
-    values: [string]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "grantMintAndBurnRoles",
-    values: [string]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "grantMintRole",
-    values: [string]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "increaseApproval",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "isBurner", values: [string]): string;
-  encodeFunctionData(functionFragment: "isMinter", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "isBurner",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isMinter",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(functionFragment: "maxSupply", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "mint",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "revokeBurnRole",
-    values: [string]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "revokeMintRole",
-    values: [string]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
@@ -188,19 +172,19 @@ export interface BurnMintERC677Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "transfer",
-    values: [string, BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "transferAndCall",
-    values: [string, BigNumberish, BytesLike]
+    values: [AddressLike, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "transferFrom",
-    values: [string, string, BigNumberish]
+    values: [AddressLike, AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
-    values: [string]
+    values: [AddressLike]
   ): string;
 
   decodeFunctionResult(
@@ -286,927 +270,630 @@ export interface BurnMintERC677Interface extends utils.Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
-
-  events: {
-    "Approval(address,address,uint256)": EventFragment;
-    "BurnAccessGranted(address)": EventFragment;
-    "BurnAccessRevoked(address)": EventFragment;
-    "MintAccessGranted(address)": EventFragment;
-    "MintAccessRevoked(address)": EventFragment;
-    "OwnershipTransferRequested(address,address)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
-    "Transfer(address,address,uint256)": EventFragment;
-    "Transfer(address,address,uint256,bytes)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "BurnAccessGranted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "BurnAccessRevoked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MintAccessGranted"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "MintAccessRevoked"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferRequested"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "Transfer(address,address,uint256)"
-  ): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "Transfer(address,address,uint256,bytes)"
-  ): EventFragment;
 }
 
-export interface ApprovalEventObject {
-  owner: string;
-  spender: string;
-  value: BigNumber;
+export namespace ApprovalEvent {
+  export type InputTuple = [
+    owner: AddressLike,
+    spender: AddressLike,
+    value: BigNumberish
+  ];
+  export type OutputTuple = [owner: string, spender: string, value: bigint];
+  export interface OutputObject {
+    owner: string;
+    spender: string;
+    value: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type ApprovalEvent = TypedEvent<
-  [string, string, BigNumber],
-  ApprovalEventObject
->;
 
-export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
-
-export interface BurnAccessGrantedEventObject {
-  burner: string;
+export namespace BurnAccessGrantedEvent {
+  export type InputTuple = [burner: AddressLike];
+  export type OutputTuple = [burner: string];
+  export interface OutputObject {
+    burner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type BurnAccessGrantedEvent = TypedEvent<
-  [string],
-  BurnAccessGrantedEventObject
->;
 
-export type BurnAccessGrantedEventFilter =
-  TypedEventFilter<BurnAccessGrantedEvent>;
-
-export interface BurnAccessRevokedEventObject {
-  burner: string;
+export namespace BurnAccessRevokedEvent {
+  export type InputTuple = [burner: AddressLike];
+  export type OutputTuple = [burner: string];
+  export interface OutputObject {
+    burner: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type BurnAccessRevokedEvent = TypedEvent<
-  [string],
-  BurnAccessRevokedEventObject
->;
 
-export type BurnAccessRevokedEventFilter =
-  TypedEventFilter<BurnAccessRevokedEvent>;
-
-export interface MintAccessGrantedEventObject {
-  minter: string;
+export namespace MintAccessGrantedEvent {
+  export type InputTuple = [minter: AddressLike];
+  export type OutputTuple = [minter: string];
+  export interface OutputObject {
+    minter: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type MintAccessGrantedEvent = TypedEvent<
-  [string],
-  MintAccessGrantedEventObject
->;
 
-export type MintAccessGrantedEventFilter =
-  TypedEventFilter<MintAccessGrantedEvent>;
-
-export interface MintAccessRevokedEventObject {
-  minter: string;
+export namespace MintAccessRevokedEvent {
+  export type InputTuple = [minter: AddressLike];
+  export type OutputTuple = [minter: string];
+  export interface OutputObject {
+    minter: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type MintAccessRevokedEvent = TypedEvent<
-  [string],
-  MintAccessRevokedEventObject
->;
 
-export type MintAccessRevokedEventFilter =
-  TypedEventFilter<MintAccessRevokedEvent>;
-
-export interface OwnershipTransferRequestedEventObject {
-  from: string;
-  to: string;
+export namespace OwnershipTransferRequestedEvent {
+  export type InputTuple = [from: AddressLike, to: AddressLike];
+  export type OutputTuple = [from: string, to: string];
+  export interface OutputObject {
+    from: string;
+    to: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type OwnershipTransferRequestedEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferRequestedEventObject
->;
 
-export type OwnershipTransferRequestedEventFilter =
-  TypedEventFilter<OwnershipTransferRequestedEvent>;
-
-export interface OwnershipTransferredEventObject {
-  from: string;
-  to: string;
+export namespace OwnershipTransferredEvent {
+  export type InputTuple = [from: AddressLike, to: AddressLike];
+  export type OutputTuple = [from: string, to: string];
+  export interface OutputObject {
+    from: string;
+    to: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type OwnershipTransferredEvent = TypedEvent<
-  [string, string],
-  OwnershipTransferredEventObject
->;
 
-export type OwnershipTransferredEventFilter =
-  TypedEventFilter<OwnershipTransferredEvent>;
-
-export interface Transfer_address_address_uint256_EventObject {
-  from: string;
-  to: string;
-  value: BigNumber;
+export namespace Transfer_address_address_uint256_Event {
+  export type InputTuple = [
+    from: AddressLike,
+    to: AddressLike,
+    value: BigNumberish
+  ];
+  export type OutputTuple = [from: string, to: string, value: bigint];
+  export interface OutputObject {
+    from: string;
+    to: string;
+    value: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type Transfer_address_address_uint256_Event = TypedEvent<
-  [string, string, BigNumber],
-  Transfer_address_address_uint256_EventObject
->;
 
-export type Transfer_address_address_uint256_EventFilter =
-  TypedEventFilter<Transfer_address_address_uint256_Event>;
-
-export interface Transfer_address_address_uint256_bytes_EventObject {
-  from: string;
-  to: string;
-  value: BigNumber;
-  data: string;
+export namespace Transfer_address_address_uint256_bytes_Event {
+  export type InputTuple = [
+    from: AddressLike,
+    to: AddressLike,
+    value: BigNumberish,
+    data: BytesLike
+  ];
+  export type OutputTuple = [
+    from: string,
+    to: string,
+    value: bigint,
+    data: string
+  ];
+  export interface OutputObject {
+    from: string;
+    to: string;
+    value: bigint;
+    data: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type Transfer_address_address_uint256_bytes_Event = TypedEvent<
-  [string, string, BigNumber, string],
-  Transfer_address_address_uint256_bytes_EventObject
->;
-
-export type Transfer_address_address_uint256_bytes_EventFilter =
-  TypedEventFilter<Transfer_address_address_uint256_bytes_Event>;
 
 export interface BurnMintERC677 extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): BurnMintERC677;
+  waitForDeployment(): Promise<this>;
 
   interface: BurnMintERC677Interface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined
-  ): Promise<Array<TEvent>>;
-
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
-
-  functions: {
-    acceptOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    approve(
-      spender: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    balanceOf(account: string, overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    "burn(uint256)"(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    "burn(address,uint256)"(
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    burnFrom(
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    decimals(overrides?: CallOverrides): Promise<[number]>;
-
-    decreaseAllowance(
-      spender: string,
-      subtractedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    decreaseApproval(
-      spender: string,
-      subtractedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    getBurners(overrides?: CallOverrides): Promise<[string[]]>;
-
-    getMinters(overrides?: CallOverrides): Promise<[string[]]>;
-
-    grantBurnRole(
-      burner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    grantMintAndBurnRoles(
-      burnAndMinter: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    grantMintRole(
-      minter: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    increaseAllowance(
-      spender: string,
-      addedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    increaseApproval(
-      spender: string,
-      addedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    isBurner(burner: string, overrides?: CallOverrides): Promise<[boolean]>;
-
-    isMinter(minter: string, overrides?: CallOverrides): Promise<[boolean]>;
-
-    maxSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    mint(
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    name(overrides?: CallOverrides): Promise<[string]>;
-
-    owner(overrides?: CallOverrides): Promise<[string]>;
-
-    revokeBurnRole(
-      burner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    revokeMintRole(
-      minter: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    supportsInterface(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
-    symbol(overrides?: CallOverrides): Promise<[string]>;
-
-    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    transfer(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    transferAndCall(
-      to: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    transferFrom(
-      from: string,
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-
-    transferOwnership(
-      to: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<ContractTransaction>;
-  };
-
-  acceptOwnership(
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  allowance(
-    owner: string,
-    spender: string,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  approve(
-    spender: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-  "burn(uint256)"(
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  "burn(address,uint256)"(
-    account: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  burnFrom(
-    account: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  decimals(overrides?: CallOverrides): Promise<number>;
-
-  decreaseAllowance(
-    spender: string,
-    subtractedValue: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  decreaseApproval(
-    spender: string,
-    subtractedValue: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  getBurners(overrides?: CallOverrides): Promise<string[]>;
-
-  getMinters(overrides?: CallOverrides): Promise<string[]>;
-
-  grantBurnRole(
-    burner: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  grantMintAndBurnRoles(
-    burnAndMinter: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  grantMintRole(
-    minter: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  increaseAllowance(
-    spender: string,
-    addedValue: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  increaseApproval(
-    spender: string,
-    addedValue: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  isBurner(burner: string, overrides?: CallOverrides): Promise<boolean>;
-
-  isMinter(minter: string, overrides?: CallOverrides): Promise<boolean>;
-
-  maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-  mint(
-    account: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  name(overrides?: CallOverrides): Promise<string>;
-
-  owner(overrides?: CallOverrides): Promise<string>;
-
-  revokeBurnRole(
-    burner: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  revokeMintRole(
-    minter: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  supportsInterface(
-    interfaceId: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
-  symbol(overrides?: CallOverrides): Promise<string>;
-
-  totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-  transfer(
-    to: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  transferAndCall(
-    to: string,
-    amount: BigNumberish,
-    data: BytesLike,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  transferFrom(
-    from: string,
-    to: string,
-    amount: BigNumberish,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  transferOwnership(
-    to: string,
-    overrides?: Overrides & { from?: string }
-  ): Promise<ContractTransaction>;
-
-  callStatic: {
-    acceptOwnership(overrides?: CallOverrides): Promise<void>;
-
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    approve(
-      spender: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "burn(uint256)"(
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    "burn(address,uint256)"(
-      account: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    burnFrom(
-      account: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    decimals(overrides?: CallOverrides): Promise<number>;
-
-    decreaseAllowance(
-      spender: string,
-      subtractedValue: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    decreaseApproval(
-      spender: string,
-      subtractedValue: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    getBurners(overrides?: CallOverrides): Promise<string[]>;
-
-    getMinters(overrides?: CallOverrides): Promise<string[]>;
-
-    grantBurnRole(burner: string, overrides?: CallOverrides): Promise<void>;
-
-    grantMintAndBurnRoles(
-      burnAndMinter: string,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    grantMintRole(minter: string, overrides?: CallOverrides): Promise<void>;
-
-    increaseAllowance(
-      spender: string,
-      addedValue: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    increaseApproval(
-      spender: string,
-      addedValue: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    isBurner(burner: string, overrides?: CallOverrides): Promise<boolean>;
-
-    isMinter(minter: string, overrides?: CallOverrides): Promise<boolean>;
-
-    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-    mint(
-      account: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    name(overrides?: CallOverrides): Promise<string>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    revokeBurnRole(burner: string, overrides?: CallOverrides): Promise<void>;
-
-    revokeMintRole(minter: string, overrides?: CallOverrides): Promise<void>;
-
-    supportsInterface(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    symbol(overrides?: CallOverrides): Promise<string>;
-
-    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transfer(
-      to: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    transferAndCall(
-      to: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    transferFrom(
-      from: string,
-      to: string,
-      amount: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
-
-    transferOwnership(to: string, overrides?: CallOverrides): Promise<void>;
-  };
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
+
+  acceptOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  allowance: TypedContractMethod<
+    [owner: AddressLike, spender: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  approve: TypedContractMethod<
+    [spender: AddressLike, amount: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+
+  balanceOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
+
+  "burn(uint256)": TypedContractMethod<
+    [amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  "burn(address,uint256)": TypedContractMethod<
+    [account: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  burnFrom: TypedContractMethod<
+    [account: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  decimals: TypedContractMethod<[], [bigint], "view">;
+
+  decreaseAllowance: TypedContractMethod<
+    [spender: AddressLike, subtractedValue: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+
+  decreaseApproval: TypedContractMethod<
+    [spender: AddressLike, subtractedValue: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+
+  getBurners: TypedContractMethod<[], [string[]], "view">;
+
+  getMinters: TypedContractMethod<[], [string[]], "view">;
+
+  grantBurnRole: TypedContractMethod<
+    [burner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  grantMintAndBurnRoles: TypedContractMethod<
+    [burnAndMinter: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  grantMintRole: TypedContractMethod<
+    [minter: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  increaseAllowance: TypedContractMethod<
+    [spender: AddressLike, addedValue: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+
+  increaseApproval: TypedContractMethod<
+    [spender: AddressLike, addedValue: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  isBurner: TypedContractMethod<[burner: AddressLike], [boolean], "view">;
+
+  isMinter: TypedContractMethod<[minter: AddressLike], [boolean], "view">;
+
+  maxSupply: TypedContractMethod<[], [bigint], "view">;
+
+  mint: TypedContractMethod<
+    [account: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  name: TypedContractMethod<[], [string], "view">;
+
+  owner: TypedContractMethod<[], [string], "view">;
+
+  revokeBurnRole: TypedContractMethod<
+    [burner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  revokeMintRole: TypedContractMethod<
+    [minter: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  supportsInterface: TypedContractMethod<
+    [interfaceId: BytesLike],
+    [boolean],
+    "view"
+  >;
+
+  symbol: TypedContractMethod<[], [string], "view">;
+
+  totalSupply: TypedContractMethod<[], [bigint], "view">;
+
+  transfer: TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+
+  transferAndCall: TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish, data: BytesLike],
+    [boolean],
+    "nonpayable"
+  >;
+
+  transferFrom: TypedContractMethod<
+    [from: AddressLike, to: AddressLike, amount: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+
+  transferOwnership: TypedContractMethod<
+    [to: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "acceptOwnership"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "allowance"
+  ): TypedContractMethod<
+    [owner: AddressLike, spender: AddressLike],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "approve"
+  ): TypedContractMethod<
+    [spender: AddressLike, amount: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "balanceOf"
+  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "burn(uint256)"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "burn(address,uint256)"
+  ): TypedContractMethod<
+    [account: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "burnFrom"
+  ): TypedContractMethod<
+    [account: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "decimals"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "decreaseAllowance"
+  ): TypedContractMethod<
+    [spender: AddressLike, subtractedValue: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "decreaseApproval"
+  ): TypedContractMethod<
+    [spender: AddressLike, subtractedValue: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "getBurners"
+  ): TypedContractMethod<[], [string[]], "view">;
+  getFunction(
+    nameOrSignature: "getMinters"
+  ): TypedContractMethod<[], [string[]], "view">;
+  getFunction(
+    nameOrSignature: "grantBurnRole"
+  ): TypedContractMethod<[burner: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "grantMintAndBurnRoles"
+  ): TypedContractMethod<[burnAndMinter: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "grantMintRole"
+  ): TypedContractMethod<[minter: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "increaseAllowance"
+  ): TypedContractMethod<
+    [spender: AddressLike, addedValue: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "increaseApproval"
+  ): TypedContractMethod<
+    [spender: AddressLike, addedValue: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "isBurner"
+  ): TypedContractMethod<[burner: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isMinter"
+  ): TypedContractMethod<[minter: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "maxSupply"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "mint"
+  ): TypedContractMethod<
+    [account: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "name"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "revokeBurnRole"
+  ): TypedContractMethod<[burner: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "revokeMintRole"
+  ): TypedContractMethod<[minter: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "supportsInterface"
+  ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "symbol"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "totalSupply"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "transfer"
+  ): TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "transferAndCall"
+  ): TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish, data: BytesLike],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "transferFrom"
+  ): TypedContractMethod<
+    [from: AddressLike, to: AddressLike, amount: BigNumberish],
+    [boolean],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "transferOwnership"
+  ): TypedContractMethod<[to: AddressLike], [void], "nonpayable">;
+
+  getEvent(
+    key: "Approval"
+  ): TypedContractEvent<
+    ApprovalEvent.InputTuple,
+    ApprovalEvent.OutputTuple,
+    ApprovalEvent.OutputObject
+  >;
+  getEvent(
+    key: "BurnAccessGranted"
+  ): TypedContractEvent<
+    BurnAccessGrantedEvent.InputTuple,
+    BurnAccessGrantedEvent.OutputTuple,
+    BurnAccessGrantedEvent.OutputObject
+  >;
+  getEvent(
+    key: "BurnAccessRevoked"
+  ): TypedContractEvent<
+    BurnAccessRevokedEvent.InputTuple,
+    BurnAccessRevokedEvent.OutputTuple,
+    BurnAccessRevokedEvent.OutputObject
+  >;
+  getEvent(
+    key: "MintAccessGranted"
+  ): TypedContractEvent<
+    MintAccessGrantedEvent.InputTuple,
+    MintAccessGrantedEvent.OutputTuple,
+    MintAccessGrantedEvent.OutputObject
+  >;
+  getEvent(
+    key: "MintAccessRevoked"
+  ): TypedContractEvent<
+    MintAccessRevokedEvent.InputTuple,
+    MintAccessRevokedEvent.OutputTuple,
+    MintAccessRevokedEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTransferRequested"
+  ): TypedContractEvent<
+    OwnershipTransferRequestedEvent.InputTuple,
+    OwnershipTransferRequestedEvent.OutputTuple,
+    OwnershipTransferRequestedEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTransferred"
+  ): TypedContractEvent<
+    OwnershipTransferredEvent.InputTuple,
+    OwnershipTransferredEvent.OutputTuple,
+    OwnershipTransferredEvent.OutputObject
+  >;
+  getEvent(
+    key: "Transfer(address,address,uint256)"
+  ): TypedContractEvent<
+    Transfer_address_address_uint256_Event.InputTuple,
+    Transfer_address_address_uint256_Event.OutputTuple,
+    Transfer_address_address_uint256_Event.OutputObject
+  >;
+  getEvent(
+    key: "Transfer(address,address,uint256,bytes)"
+  ): TypedContractEvent<
+    Transfer_address_address_uint256_bytes_Event.InputTuple,
+    Transfer_address_address_uint256_bytes_Event.OutputTuple,
+    Transfer_address_address_uint256_bytes_Event.OutputObject
+  >;
 
   filters: {
-    "Approval(address,address,uint256)"(
-      owner?: string | null,
-      spender?: string | null,
-      value?: null
-    ): ApprovalEventFilter;
-    Approval(
-      owner?: string | null,
-      spender?: string | null,
-      value?: null
-    ): ApprovalEventFilter;
-
-    "BurnAccessGranted(address)"(
-      burner?: string | null
-    ): BurnAccessGrantedEventFilter;
-    BurnAccessGranted(burner?: string | null): BurnAccessGrantedEventFilter;
-
-    "BurnAccessRevoked(address)"(
-      burner?: string | null
-    ): BurnAccessRevokedEventFilter;
-    BurnAccessRevoked(burner?: string | null): BurnAccessRevokedEventFilter;
-
-    "MintAccessGranted(address)"(
-      minter?: string | null
-    ): MintAccessGrantedEventFilter;
-    MintAccessGranted(minter?: string | null): MintAccessGrantedEventFilter;
-
-    "MintAccessRevoked(address)"(
-      minter?: string | null
-    ): MintAccessRevokedEventFilter;
-    MintAccessRevoked(minter?: string | null): MintAccessRevokedEventFilter;
-
-    "OwnershipTransferRequested(address,address)"(
-      from?: string | null,
-      to?: string | null
-    ): OwnershipTransferRequestedEventFilter;
-    OwnershipTransferRequested(
-      from?: string | null,
-      to?: string | null
-    ): OwnershipTransferRequestedEventFilter;
-
-    "OwnershipTransferred(address,address)"(
-      from?: string | null,
-      to?: string | null
-    ): OwnershipTransferredEventFilter;
-    OwnershipTransferred(
-      from?: string | null,
-      to?: string | null
-    ): OwnershipTransferredEventFilter;
-
-    "Transfer(address,address,uint256)"(
-      from?: string | null,
-      to?: string | null,
-      value?: null
-    ): Transfer_address_address_uint256_EventFilter;
-    "Transfer(address,address,uint256,bytes)"(
-      from?: string | null,
-      to?: string | null,
-      value?: null,
-      data?: null
-    ): Transfer_address_address_uint256_bytes_EventFilter;
-  };
-
-  estimateGas: {
-    acceptOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    approve(
-      spender: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    balanceOf(account: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    "burn(uint256)"(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    "burn(address,uint256)"(
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    burnFrom(
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    decimals(overrides?: CallOverrides): Promise<BigNumber>;
-
-    decreaseAllowance(
-      spender: string,
-      subtractedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    decreaseApproval(
-      spender: string,
-      subtractedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    getBurners(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getMinters(overrides?: CallOverrides): Promise<BigNumber>;
-
-    grantBurnRole(
-      burner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    grantMintAndBurnRoles(
-      burnAndMinter: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    grantMintRole(
-      minter: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    increaseAllowance(
-      spender: string,
-      addedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    increaseApproval(
-      spender: string,
-      addedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    isBurner(burner: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    isMinter(minter: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    maxSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-    mint(
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    name(overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    revokeBurnRole(
-      burner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    revokeMintRole(
-      minter: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    supportsInterface(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    symbol(overrides?: CallOverrides): Promise<BigNumber>;
-
-    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
-    transfer(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    transferAndCall(
-      to: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    transferFrom(
-      from: string,
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-
-    transferOwnership(
-      to: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    acceptOwnership(
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    allowance(
-      owner: string,
-      spender: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    approve(
-      spender: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    balanceOf(
-      account: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    "burn(uint256)"(
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    "burn(address,uint256)"(
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    burnFrom(
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    decreaseAllowance(
-      spender: string,
-      subtractedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    decreaseApproval(
-      spender: string,
-      subtractedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    getBurners(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getMinters(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    grantBurnRole(
-      burner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    grantMintAndBurnRoles(
-      burnAndMinter: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    grantMintRole(
-      minter: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    increaseAllowance(
-      spender: string,
-      addedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    increaseApproval(
-      spender: string,
-      addedValue: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    isBurner(
-      burner: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    isMinter(
-      minter: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    maxSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    mint(
-      account: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    revokeBurnRole(
-      burner: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    revokeMintRole(
-      minter: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    supportsInterface(
-      interfaceId: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    transfer(
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    transferAndCall(
-      to: string,
-      amount: BigNumberish,
-      data: BytesLike,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    transferFrom(
-      from: string,
-      to: string,
-      amount: BigNumberish,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
-
-    transferOwnership(
-      to: string,
-      overrides?: Overrides & { from?: string }
-    ): Promise<PopulatedTransaction>;
+    "Approval(address,address,uint256)": TypedContractEvent<
+      ApprovalEvent.InputTuple,
+      ApprovalEvent.OutputTuple,
+      ApprovalEvent.OutputObject
+    >;
+    Approval: TypedContractEvent<
+      ApprovalEvent.InputTuple,
+      ApprovalEvent.OutputTuple,
+      ApprovalEvent.OutputObject
+    >;
+
+    "BurnAccessGranted(address)": TypedContractEvent<
+      BurnAccessGrantedEvent.InputTuple,
+      BurnAccessGrantedEvent.OutputTuple,
+      BurnAccessGrantedEvent.OutputObject
+    >;
+    BurnAccessGranted: TypedContractEvent<
+      BurnAccessGrantedEvent.InputTuple,
+      BurnAccessGrantedEvent.OutputTuple,
+      BurnAccessGrantedEvent.OutputObject
+    >;
+
+    "BurnAccessRevoked(address)": TypedContractEvent<
+      BurnAccessRevokedEvent.InputTuple,
+      BurnAccessRevokedEvent.OutputTuple,
+      BurnAccessRevokedEvent.OutputObject
+    >;
+    BurnAccessRevoked: TypedContractEvent<
+      BurnAccessRevokedEvent.InputTuple,
+      BurnAccessRevokedEvent.OutputTuple,
+      BurnAccessRevokedEvent.OutputObject
+    >;
+
+    "MintAccessGranted(address)": TypedContractEvent<
+      MintAccessGrantedEvent.InputTuple,
+      MintAccessGrantedEvent.OutputTuple,
+      MintAccessGrantedEvent.OutputObject
+    >;
+    MintAccessGranted: TypedContractEvent<
+      MintAccessGrantedEvent.InputTuple,
+      MintAccessGrantedEvent.OutputTuple,
+      MintAccessGrantedEvent.OutputObject
+    >;
+
+    "MintAccessRevoked(address)": TypedContractEvent<
+      MintAccessRevokedEvent.InputTuple,
+      MintAccessRevokedEvent.OutputTuple,
+      MintAccessRevokedEvent.OutputObject
+    >;
+    MintAccessRevoked: TypedContractEvent<
+      MintAccessRevokedEvent.InputTuple,
+      MintAccessRevokedEvent.OutputTuple,
+      MintAccessRevokedEvent.OutputObject
+    >;
+
+    "OwnershipTransferRequested(address,address)": TypedContractEvent<
+      OwnershipTransferRequestedEvent.InputTuple,
+      OwnershipTransferRequestedEvent.OutputTuple,
+      OwnershipTransferRequestedEvent.OutputObject
+    >;
+    OwnershipTransferRequested: TypedContractEvent<
+      OwnershipTransferRequestedEvent.InputTuple,
+      OwnershipTransferRequestedEvent.OutputTuple,
+      OwnershipTransferRequestedEvent.OutputObject
+    >;
+
+    "OwnershipTransferred(address,address)": TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+    OwnershipTransferred: TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+
+    "Transfer(address,address,uint256)": TypedContractEvent<
+      Transfer_address_address_uint256_Event.InputTuple,
+      Transfer_address_address_uint256_Event.OutputTuple,
+      Transfer_address_address_uint256_Event.OutputObject
+    >;
+    "Transfer(address,address,uint256,bytes)": TypedContractEvent<
+      Transfer_address_address_uint256_bytes_Event.InputTuple,
+      Transfer_address_address_uint256_bytes_Event.OutputTuple,
+      Transfer_address_address_uint256_bytes_Event.OutputObject
+    >;
   };
 }

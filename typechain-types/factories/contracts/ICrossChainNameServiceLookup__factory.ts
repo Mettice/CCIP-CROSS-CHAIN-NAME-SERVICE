@@ -2,8 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Contract, Interface, type ContractRunner } from "ethers";
 import type {
   ICrossChainNameServiceLookup,
   ICrossChainNameServiceLookupInterface,
@@ -33,16 +32,16 @@ const _abi = [
 export class ICrossChainNameServiceLookup__factory {
   static readonly abi = _abi;
   static createInterface(): ICrossChainNameServiceLookupInterface {
-    return new utils.Interface(_abi) as ICrossChainNameServiceLookupInterface;
+    return new Interface(_abi) as ICrossChainNameServiceLookupInterface;
   }
   static connect(
     address: string,
-    signerOrProvider: Signer | Provider
+    runner?: ContractRunner | null
   ): ICrossChainNameServiceLookup {
     return new Contract(
       address,
       _abi,
-      signerOrProvider
-    ) as ICrossChainNameServiceLookup;
+      runner
+    ) as unknown as ICrossChainNameServiceLookup;
   }
 }

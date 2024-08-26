@@ -2,8 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Signer, utils } from "ethers";
-import type { Provider } from "@ethersproject/providers";
+import { Contract, Interface, type ContractRunner } from "ethers";
 import type {
   IBurnMintERC20,
   IBurnMintERC20Interface,
@@ -265,12 +264,12 @@ const _abi = [
 export class IBurnMintERC20__factory {
   static readonly abi = _abi;
   static createInterface(): IBurnMintERC20Interface {
-    return new utils.Interface(_abi) as IBurnMintERC20Interface;
+    return new Interface(_abi) as IBurnMintERC20Interface;
   }
   static connect(
     address: string,
-    signerOrProvider: Signer | Provider
+    runner?: ContractRunner | null
   ): IBurnMintERC20 {
-    return new Contract(address, _abi, signerOrProvider) as IBurnMintERC20;
+    return new Contract(address, _abi, runner) as unknown as IBurnMintERC20;
   }
 }
