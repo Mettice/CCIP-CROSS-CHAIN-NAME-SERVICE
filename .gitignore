@@ -11,3 +11,8 @@ coverage.json
 
 # Deployment artifacts
 deployments/
+
+# Ignore build artifacts
+artifacts/
+cache/
+typechain-types/
